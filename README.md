@@ -32,6 +32,7 @@ v1x v1y v1z
 ...
 
 vkx vky vkz
+
 with atomn is nth atom in the cell at coordinate xn, yn, zn and vkx,vky,vkz is the kth translation vector defining all the positions of atoms in the cell.
 * Click on the draw button.
 * Tick "atoms" to see the different atoms (label with different numbers)
