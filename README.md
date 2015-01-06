@@ -17,4 +17,5 @@ Crystal-proj is a python script that draws the projection of a crystal structure
 ### Procedure
 * Enter the crystal structure or import it from the menu bar. The structure can be modified/added by modifying the structure.txt file. The format is: name a b c alpha beta gamma space-group. 
 * Enter the indices of the plane to draw
-* Enter the layers number
+* Enter the layers number (i.e. the number of parallel planes)
+* Enter the size of the projection
