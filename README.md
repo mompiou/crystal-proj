@@ -40,3 +40,5 @@ with atomn is nth atom in the cell at coordinate xn, yn, zn and vkx,vky,vkz is t
 ![img2](/img2.png?raw=true)
 * Change the marker size with the scale button and shape using "circle/square" button
 * Zoom in, move and save the figure using the bottom tool bar
+* Press 3D button to draw a 3D draggable/rotating view of the crystal.
+![img3](/img3.png?raw=true)
