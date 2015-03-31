@@ -2,7 +2,7 @@ Crystal-proj
 ============
 
 
-Crystal-proj is a python script that draws the projection of a crystal structure on a given plane and the dichromatic pattern.
+Crystal-proj is a python script that draws the projection of a crystal structure on a given plane.
 
 ## Requirements
 * Python 2.7 with Matplotlib, Numpy, Tkinter, PIL (available through [Enthought Canopy](https://store.enthought.com/downloads/) or [Anaconda](http://continuum.io/downloads) distributions for instance).
@@ -19,7 +19,7 @@ Crystal-proj is a python script that draws the projection of a crystal structure
 * Enter the indices of the plane to draw
 * Enter the layers number (i.e. the number of parallel planes)
 * Enter the size of the projectioned plane
-* Click calculate. You will be prompted to select the appropriate crystal structure. Text files such as cfc.txt describe the position of atoms in the unit cell. The format is: 
+* Click calculate. You were prompted to select the appropriate crystal structure. Text files such as cfc.txt describe the position of atoms in the unit cell. The format is: 
 
 atom1 x1 y1 z1
 
@@ -42,6 +42,3 @@ with atomn is nth atom in the cell at coordinate xn, yn, zn and vkx,vky,vkz is t
 * Zoom in, move and save the figure using the bottom tool bar
 * Press 3D button to draw a 3D draggable/rotating view of the crystal.
 ![img3](/img3.png?raw=true)
-* To draw the corresponding dichromatic pattern check the "DSC" button, recalculate (press "Calculate") and then "Draw". The dichromatic pattern is drawn according the usual convention: black and white crystals correspond to two different grains and different symbols to different layers (note that you can plot up to 7 different layers with different symbols)
-![img4](/img4.png?raw=true)
-

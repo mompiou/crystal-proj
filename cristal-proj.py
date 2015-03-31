@@ -14,6 +14,7 @@ from matplotlib import pyplot as plt
 from Tkinter import *
 from tkFileDialog import *
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+import matplotlib.cm as cm
 import ttk
 from mpl_toolkits.mplot3d import Axes3D
 import os
@@ -64,7 +65,7 @@ def unique(a):
 
 def calcul():
   
-    global vec,varname,atom0,Dstar,taille,zoom, EL, Dz
+    global vec,varname,atom0,Dstar,taille,zoom, EL, Dz, dsc_cond
 
    
    
@@ -90,20 +91,32 @@ def calcul():
             atom0.append(crist[i])
             
     vec=np.array(vec,float)
-    atom0=np.array(atom0,float)
-    
-    maxi=np.int(atom0[np.shape(atom0)[0]-1,0])
     E=np.array([0,0,0,0])
     EL=np.array([0,0,0,0,0])
     H=np.array([[0]])
     Dz=np.array([0,0,0])
     
-    for h in range(1,maxi+1):
-        Ca=calcul_atom(atom0[atom0[:,0] == h])
-       
+    if dsc_cond.get()==0:
+        atom0=np.array(atom0,float)
+        maxi=np.int(atom0[np.shape(atom0)[0]-1,0])
+        for h in range(1,maxi+1):
+            Ca=calcul_atom(atom0[atom0[:,0] == h])
+           
+            E=np.vstack((E,Ca[0]))
+            Dz=np.vstack((Dz,Ca[1]))        
+            H=np.vstack((H,h*np.ones((np.shape(Ca[0])[0],1))))
+    if dsc_cond.get()==1:
+        atom0=np.array([1,0,0,0])
+        h=1
+        Ca=calcul_atom(atom0)
         E=np.vstack((E,Ca[0]))
         Dz=np.vstack((Dz,Ca[1]))        
         H=np.vstack((H,h*np.ones((np.shape(Ca[0])[0],1))))
+        
+    
+    
+    
+    
     
     EL=np.append(E,H,axis=1)
     EL=np.delete(EL,(0),axis=0)  
@@ -118,38 +131,61 @@ def trace():
     fi.figure.clear()
     fi = f.add_subplot(111) 
     sim=taille.get()
-    
-    if rond.get()==1:    
-        fi.scatter(EL[:,0],EL[:,1],s=sim,c=EL[:,3],marker='o')
-    else:
-        fi.scatter(EL[:,0],EL[:,1],s=sim,c=EL[:,3],marker='s')
-    
-    
-   
-    if ato.get()==1:    
-        for k in range(0,np.shape(EL)[0]):
-            fi.annotate(str(int(EL[k,4])),(EL[k,0],EL[k,1]))    
-    
-    
-    if lab.get()==1:
-        for q in range(0,np.shape(EL)[0]):
-            at=Dz[q,:]
-            at=np.dot(at,Dstar)
-            
-            vector=str(np.around(at[0],decimals=3))+','+str(np.around(at[1],decimals=3))+','+str(np.around(at[2],decimals=3))
-            fi.annotate(vector,(EL[q,0],EL[q,1]))
-            
-
-    
+    if dsc_cond.get()==0:
+        if rond.get()==1:    
+            fi.scatter(EL[:,0],EL[:,1],s=sim,c=EL[:,3],marker='o')
+        else:
+            fi.scatter(EL[:,0],EL[:,1],s=sim,c=EL[:,3],marker='s')
+        
+        
+       
+        if ato.get()==1:    
+            for k in range(0,np.shape(EL)[0]):
+                fi.annotate(str(int(EL[k,4])),(EL[k,0],EL[k,1]))    
+        
+        
+        if lab.get()==1:
+            for q in range(0,np.shape(EL)[0]):
+                at=Dz[q,:]
+                at=np.dot(at,Dstar)
+                
+                vector=str(np.around(at[0],decimals=3))+','+str(np.around(at[1],decimals=3))+','+str(np.around(at[2],decimals=3))
+                fi.annotate(vector,(EL[q,0],EL[q,1]))
+                
+    if dsc_cond.get()==1:
+        theta=eval(theta_entry.get())
+        theta=theta*np.pi/180
+        ELr=np.dot(EL[:,0:3],Rot(theta,0,0,1))
+        
+        
+        
+        M=unique(EL[:,3])
+        Ma=[]
+        m=('o','s','^','*','h','+')
+        for t in range(0,np.shape(M)[0]):
+            for i in range(0,np.shape(EL[:,3])[0]):
+                if EL[i,3]==M[t]:
+                    Ma.append(m[t])
+        else:
+            Ma.append('D')
+          
+        for y in range(0,np.shape(EL[:,3])[0]):
+            fi.scatter(EL[y,0],EL[y,1],s=sim*1,c='0',marker=Ma[y],cmap=cm.Greys_r )
+            fi.scatter(ELr[y,0],ELr[y,1],s=sim,c='1',marker=Ma[y],cmap=cm.Greys_r, facecolors='none')
+        
+        
+        if lab.get()==1:
+            for q in range(0,np.shape(EL)[0]):
+                at=Dz[q,:]
+                at=np.dot(at,Dstar)
+                
+                vector=str(np.around(at[0],decimals=1))+','+str(np.around(at[1],decimals=1))+','+str(np.around(at[2],decimals=1))
+                fi.annotate(vector,(EL[q,0],EL[q,1]))
     fi.axis('off') 
     fi.axis('equal')
     fi.figure.canvas.draw() 
 
-   
-
-     
-        
-    
+ 
 
 
 def rep():
@@ -266,23 +302,34 @@ def calcul_atom(atom):
     na=eval(size_entry_a.get())
     nb=eval(size_entry_b.get())
     nc=eval(size_entry_c.get())
-    
-    A=np.zeros((np.shape(atom)[0],np.shape(atom)[1]-1))
-    w=0
-    
-    for v in range(0,np.shape(atom)[0]):
+    if dsc_cond.get()==0:
+        A=np.zeros((np.shape(atom)[0],np.shape(atom)[1]-1))
+        w=0
+        for v in range(0,np.shape(atom)[0]):
+            A[w,:]=np.dot(D,np.array([atom[v,1],atom[v,2],atom[v,3]]))
+            w=w+1
+        atom_pos=np.array(A[0,:])
+        for f in range(0,np.shape(A)[0]):
+            for i in range(-na,na+1):
+                for j in range(-nb,nb+1):
+                    for k in range(-nc,nc+1):
+                            atom_pos=np.vstack((atom_pos,A[f,:]+i*a*vec[0,:]+j*b*vec[1,:]+k*c*vec[2,:]))        
         
-        A[w,:]=np.dot(D,np.array([atom[v,1],atom[v,2],atom[v,3]]))
-        w=w+1
-    
-    atom_pos=np.array(A[0,:])
-#    print(atom_pos)
-    for f in range(0,np.shape(A)[0]):
+    if dsc_cond.get()==1:
+        atom_pos=np.array([0,0,0])
         for i in range(-na,na+1):
             for j in range(-nb,nb+1):
                 for k in range(-nc,nc+1):
+                        atom_pos=np.vstack((atom_pos,i*a*vec[0,:]+j*b*vec[1,:]+k*c*vec[2,:]))
+        
+    
+    
+    
+    
+    
+#    print(atom_pos)
+    
                         
-                        atom_pos=np.vstack((atom_pos,A[f,:]+i*a*vec[0,:]+j*b*vec[1,:]+k*c*vec[2,:]))
     h=eval(h_entry.get())
     k=eval(k_entry.get())
     l=eval(l_entry.get())
@@ -320,22 +367,68 @@ def calcul_atom(atom):
         D0=np.vstack((D0,1+np.abs(np.around(np.dot(planN,Dz[j]),decimals=4))))
     C=np.delete(C,(0),axis=0)    
     D0=np.delete(D0,(0),axis=0)
-   
+    Dz=np.delete(Dz,(0),axis=0)
     F=np.append(C,D0,axis=1)
            
     return F, Dz, atom_pos    
 
 
+def dsc():
+    global vec,varname,atom0,Dstar,taille,zoom, EL, Dz
+       
+    fi = f.add_subplot(111) 
+    fi.figure.clear()
+    fi = f.add_subplot(111) 
+    sim=taille.get()
+#    h=eval(h_entry.get())
+#    k=eval(k_entry.get())    
+#    l=eval(l_entry.get())
+    theta=eval(theta_entry.get())
+    theta=theta*np.pi/180
+    ELr=np.dot(EL[:,0:3],Rot(theta,0,0,1))
+    
+    
+    
+    M=unique(EL[:,3])
+    Ma=[]
+    m=('o','s','^','*','h','+')
+    for t in range(0,np.shape(M)[0]):
+        for i in range(0,np.shape(EL[:,3])[0]):
+            if EL[i,3]==M[t]:
+                Ma.append(m[t])
+    else:
+        Ma.append('D')
+      
+    for y in range(0,np.shape(EL[:,3])[0]):
+        fi.scatter(EL[y,0],EL[y,1],s=sim*1,c='0',marker=Ma[y],cmap=cm.Greys_r )
+        fi.scatter(ELr[y,0],ELr[y,1],s=sim,c='1',marker=Ma[y],cmap=cm.Greys_r, facecolors='none')
+    
+    
+    if lab.get()==1:
+        for q in range(0,np.shape(EL)[0]):
+            at=Dz[q,:]
+            at=np.dot(at,Dstar)
+            
+            vector=str(np.around(at[0],decimals=1))+','+str(np.around(at[1],decimals=1))+','+str(np.around(at[2],decimals=1))
+            fi.annotate(vector,(EL[q,0],EL[q,1]))
+                
+    fi.axis('off') 
+    fi.axis('equal')
+    fi.figure.canvas.draw()     
+
+
+
+
 def getFileName():
     global varname
-    varname = askopenfilename()
+    varname = askopenfilename(initialdir=os.getcwd())
     return varname
 
 
 
    
 root = Tk()
-root.title('Plane')
+root.title('Crystal-Proj')
 root.geometry('1102x839')
 
 
@@ -359,13 +452,14 @@ default = style.lookup(theme, 'background')
 root.configure(background=default)
 
 def init():
-    global varname, lab, ato, rond,zoom,taille
+    global varname, lab, ato, rond,zoom,taille, dsc_cond
     varname=0
     lab=IntVar()
     ato=IntVar()
     rond=IntVar()
     zoom=IntVar()
     taille=IntVar()
+    dsc_cond=IntVar()
     
 init()  
 
@@ -373,7 +467,13 @@ plot_button = Button (master=root)
 plot_button.place(relx=0.03,rely=0.35,height=27,width=114)
 plot_button.configure(activebackground="#f9f9f9")
 plot_button.configure(background="#00ff00")
-plot_button.configure(text='''Draw plane''',command=trace)
+plot_button.configure(text='''Draw ''',command=trace)
+
+dsc_check = Checkbutton (master=root)
+dsc_check.place(relx=0.15,rely=0.35,height=27,width=74)
+dsc_check.configure(activebackground="#f9f9f9")
+dsc_check.configure(text='''DSC''')
+dsc_check.configure(variable=dsc_cond)
 
 a_label = Label (master=root)
 a_label.place(relx=0.03,rely=0.05,height=19,width=11)
@@ -534,6 +634,18 @@ size_marker_label.place(relx=0.01,rely=0.51,height=19,width=104)
 size_marker_label.configure(activebackground="#f9f9f9")
 size_marker_label.configure(text='''Marker size''')
 
+theta_label = Label (master=root)
+theta_label.place(relx=0.02,rely=0.6,height=19,width=94)
+theta_label.configure(activebackground="#f9f9f9")
+theta_label.configure(text='''Rotation angle''')
+
+theta_entry = Entry (master=root)
+theta_entry.place(relx=0.12,rely=0.60,relheight=0.02 ,relwidth=0.03)
+theta_entry.configure(selectbackground="#c4c4c4")
+
+
+
+
 menu = Menu(master=root)
 root.config(menu=menu)
 
@@ -595,6 +707,7 @@ size_entry_a.insert(2,2)
 size_entry_b.insert(2,2)
 size_entry_c.insert(2,2)
 size_scale.set(50)
+theta_entry.insert(20,20)
 rond_check.select()
 
 
