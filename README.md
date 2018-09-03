@@ -35,14 +35,24 @@ vkx vky vkz
 
 with atomn is nth atom in the cell at coordinate xn, yn, zn and vkx,vky,vkz is the kth translation vector defining all the positions of atoms in the cell.
 * Click on the draw button.
+
 * Tick "atoms" to see the different atoms (label with different numbers)
+
 * Tick "label" to see the coordinates
+
 ![img2](/img2.png?raw=true)
+
 * Change the marker size with the scale button and shape using "circle/square" button
+
 * Zoom in, move and save the figure using the bottom tool bar
+
 * Press 3D button to draw a 3D draggable/rotating view of the crystal.
+
 ![img3](/img3.png?raw=true)
+
 * To draw the corresponding dichromatic pattern check the "DSC" button, recalculate (press "Calculate") and then "Draw". The dichromatic pattern is drawn according the usual convention: black and white crystals correspond to two different grains and different symbols to different layers (note that you can plot up to 7 different layers with different symbols)
+
 ![img4](/img4.png?raw=true)
-*Tick the "Coincidence sites" button to draw coincident site positions. The precision by which is defined coincidence  can be tuned. It is expressed in % of the largest lattice parameter.
+
+* Tick the "Coincidence sites" button to draw coincident site positions. The precision by which is defined coincidence  can be tuned. It is expressed in % of the largest lattice parameter.
 
