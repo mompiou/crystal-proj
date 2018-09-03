@@ -44,4 +44,5 @@ with atomn is nth atom in the cell at coordinate xn, yn, zn and vkx,vky,vkz is t
 ![img3](/img3.png?raw=true)
 * To draw the corresponding dichromatic pattern check the "DSC" button, recalculate (press "Calculate") and then "Draw". The dichromatic pattern is drawn according the usual convention: black and white crystals correspond to two different grains and different symbols to different layers (note that you can plot up to 7 different layers with different symbols)
 ![img4](/img4.png?raw=true)
+*Tick the "Coincidence sites" button to draw coincident site positions. The precision by which is defined coincidence  can be tuned. It is expressed in % of the largest lattice parameter.
 

@@ -105,6 +105,7 @@ def calcul():
             E=np.vstack((E,Ca[0]))
             Dz=np.vstack((Dz,Ca[1]))        
             H=np.vstack((H,h*np.ones((np.shape(Ca[0])[0],1))))
+            
     if dsc_cond.get()==1:
         atom0=np.array([1,0,0,0])
         h=1
@@ -121,6 +122,7 @@ def calcul():
     EL=np.append(E,H,axis=1)
     EL=np.delete(EL,(0),axis=0)  
     Dz=np.delete(Dz,(0),axis=0)  
+    
  
 
 
@@ -151,39 +153,53 @@ def trace():
                 
                 vector=str(np.around(at[0],decimals=3))+','+str(np.around(at[1],decimals=3))+','+str(np.around(at[2],decimals=3))
                 fi.annotate(vector,(EL[q,0],EL[q,1]))
-                
+
     if dsc_cond.get()==1:
-        theta=eval(theta_entry.get())
-        theta=theta*np.pi/180
-        ELr=np.dot(EL[:,0:3],Rot(theta,0,0,1))
+		theta=eval(theta_entry.get())
+		theta=theta*np.pi/180
+		ELr=np.dot(EL[:,0:3],Rot(theta,0,0,1))
+		
+		
+		
+		M=unique(EL[:,3])
+		Ma=[]
+		m=('o','s','^','*','h','+')
+		if coin.get()==1:
+			coi=np.array([0])
+			ep=0.01*eval(ep_entry.get())*np.max([eval(a_entry.get()),eval(b_entry.get()),eval(c_entry.get())])
+			for i in range(0,np.shape(EL[:,3])[0]):
+				for j in range(0,np.shape(ELr[:,0])[0]):
+					if np.linalg.norm(EL[i,0:3]-ELr[j,:])<ep:
+						coi=np.hstack((coi,i))
+			coi=np.unique(coi)
+		for t in range(0,np.shape(M)[0]):
+			for i in range(0,np.shape(EL[:,3])[0]):
+				if EL[i,3]==M[t]:
+					Ma.append(m[t])
+		else:
+			Ma.append('D')
+
+		
+		for y in range(0,np.shape(EL[:,3])[0]):
+			fi.scatter(ELr[y,0],ELr[y,1],s=sim, marker=Ma[y],color='white',edgecolor='black')
+			fi.scatter(EL[y,0],EL[y,1],s=sim,marker=Ma[y], color='black',edgecolor='black' )
+		if coin.get()==1:
+			for z in coi:
+				fi.scatter(EL[z,0],EL[z,1],s=sim*1.5,marker=Ma[z], color='blue',edgecolor='black' )
+			
         
         
-        
-        M=unique(EL[:,3])
-        Ma=[]
-        m=('o','s','^','*','h','+')
-        for t in range(0,np.shape(M)[0]):
-            for i in range(0,np.shape(EL[:,3])[0]):
-                if EL[i,3]==M[t]:
-                    Ma.append(m[t])
-        else:
-            Ma.append('D')
-          
-        for y in range(0,np.shape(EL[:,3])[0]):
-            fi.scatter(EL[y,0],EL[y,1],s=sim*1,c='0',marker=Ma[y],cmap=cm.Greys_r )
-            fi.scatter(ELr[y,0],ELr[y,1],s=sim,c='1',marker=Ma[y],cmap=cm.Greys_r, facecolors='none')
-        
-        
-        if lab.get()==1:
-            for q in range(0,np.shape(EL)[0]):
-                at=Dz[q,:]
-                at=np.dot(at,Dstar)
-                
-                vector=str(np.around(at[0],decimals=1))+','+str(np.around(at[1],decimals=1))+','+str(np.around(at[2],decimals=1))
-                fi.annotate(vector,(EL[q,0],EL[q,1]))
+		if lab.get()==1:
+			for q in range(0,np.shape(EL)[0]):
+				at=Dz[q,:]
+				at=np.dot(at,Dstar)
+				
+				vector=str(np.around(at[0],decimals=1))+','+str(np.around(at[1],decimals=1))+','+str(np.around(at[2],decimals=1))
+				fi.annotate(vector,(EL[q,0],EL[q,1]))
     fi.axis('off') 
     fi.axis('equal')
-    fi.figure.canvas.draw() 
+    fi.figure.canvas.draw()                 
+   
 
  
 
@@ -321,7 +337,7 @@ def calcul_atom(atom):
             for j in range(-nb,nb+1):
                 for k in range(-nc,nc+1):
                         atom_pos=np.vstack((atom_pos,i*a*vec[0,:]+j*b*vec[1,:]+k*c*vec[2,:]))
-        
+    
     
     
     
@@ -373,55 +389,14 @@ def calcul_atom(atom):
     return F, Dz, atom_pos    
 
 
-def dsc():
-    global vec,varname,atom0,Dstar,taille,zoom, EL, Dz
-       
-    fi = f.add_subplot(111) 
-    fi.figure.clear()
-    fi = f.add_subplot(111) 
-    sim=taille.get()
-#    h=eval(h_entry.get())
-#    k=eval(k_entry.get())    
-#    l=eval(l_entry.get())
-    theta=eval(theta_entry.get())
-    theta=theta*np.pi/180
-    ELr=np.dot(EL[:,0:3],Rot(theta,0,0,1))
-    
-    
-    
-    M=unique(EL[:,3])
-    Ma=[]
-    m=('o','s','^','*','h','+')
-    for t in range(0,np.shape(M)[0]):
-        for i in range(0,np.shape(EL[:,3])[0]):
-            if EL[i,3]==M[t]:
-                Ma.append(m[t])
-    else:
-        Ma.append('D')
-      
-    for y in range(0,np.shape(EL[:,3])[0]):
-        fi.scatter(EL[y,0],EL[y,1],s=sim*1,c='0',marker=Ma[y],cmap=cm.Greys_r )
-        fi.scatter(ELr[y,0],ELr[y,1],s=sim,c='1',marker=Ma[y],cmap=cm.Greys_r, facecolors='none')
-    
-    
-    if lab.get()==1:
-        for q in range(0,np.shape(EL)[0]):
-            at=Dz[q,:]
-            at=np.dot(at,Dstar)
-            
-            vector=str(np.around(at[0],decimals=1))+','+str(np.around(at[1],decimals=1))+','+str(np.around(at[2],decimals=1))
-            fi.annotate(vector,(EL[q,0],EL[q,1]))
-                
-    fi.axis('off') 
-    fi.axis('equal')
-    fi.figure.canvas.draw()     
+
 
 
 
 
 def getFileName():
     global varname
-    varname = askopenfilename(initialdir=os.getcwd())
+    varname = askopenfilename(initialdir='/home/mompiou/Documents/programme_desorientation/prog-python/crystal-proj/')
     return varname
 
 
@@ -452,7 +427,7 @@ default = style.lookup(theme, 'background')
 root.configure(background=default)
 
 def init():
-    global varname, lab, ato, rond,zoom,taille, dsc_cond
+    global varname, lab, ato, rond,zoom,taille, dsc_cond,coin
     varname=0
     lab=IntVar()
     ato=IntVar()
@@ -460,6 +435,7 @@ def init():
     zoom=IntVar()
     taille=IntVar()
     dsc_cond=IntVar()
+    coin=IntVar()
     
 init()  
 
@@ -643,6 +619,20 @@ theta_entry = Entry (master=root)
 theta_entry.place(relx=0.12,rely=0.60,relheight=0.02 ,relwidth=0.03)
 theta_entry.configure(selectbackground="#c4c4c4")
 
+coi_check = Checkbutton (master=root)
+coi_check.place(relx=0.02,rely=0.65,relheight=0.02,relwidth=0.15)
+coi_check.configure(activebackground="#f9f9f9")
+coi_check.configure(text='''Coincidence  sites''')
+coi_check.configure(variable=coin)
+
+ep_label = Label (master=root)
+ep_label.place(relx=0.02,rely=0.70,height=29,width=174)
+ep_label.configure(activebackground="#f9f9f9")
+ep_label.configure(text='''Precision (%  of max lattice parameter)''', anchor=W, wraplength=174)
+
+ep_entry = Entry (master=root)
+ep_entry.place(relx=0.2,rely=0.70,relheight=0.02 ,relwidth=0.03)
+ep_entry.configure(selectbackground="#c4c4c4")
 
 
 
@@ -698,6 +688,7 @@ c_entry.insert(1,1)
 h_entry.insert(1,1)
 k_entry.insert(0,0)
 l_entry.insert(0,0)
+ep_entry.insert(5,5)
 alp_entry.insert(90,90)
 bet_entry.insert(90,90)
 gam_entry.insert(90,90)
