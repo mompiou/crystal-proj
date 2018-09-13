@@ -162,8 +162,12 @@ def trace():
 		
 		
 		M=unique(EL[:,3])
+		
+		Ma0=[]
+		Ma1=[]
+		Ma2=[]
 		Ma=[]
-		m=('o','s','^','*','h','+')
+		m=('o','s','^','*','h')
 		if coin.get()==1:
 			coi=np.array([0])
 			ep=0.01*eval(ep_entry.get())*np.max([eval(a_entry.get()),eval(b_entry.get()),eval(c_entry.get())])
@@ -175,17 +179,29 @@ def trace():
 		for t in range(0,np.shape(M)[0]):
 			for i in range(0,np.shape(EL[:,3])[0]):
 				if EL[i,3]==M[t]:
-					Ma.append(m[t])
+					
+					if t>np.size(m)-1:
+						Ma0.append('o')
+						Ma1.append('o')
+						
+					else:
+						Ma0.append(m[t])
+						Ma1.append(m[t])
+					if couche.get()==1:
+						Ma2.append(str(t))
 		else:
 			Ma.append('D')
 
 		
 		for y in range(0,np.shape(EL[:,3])[0]):
-			fi.scatter(ELr[y,0],ELr[y,1],s=sim, marker=Ma[y],color='white',edgecolor='black')
-			fi.scatter(EL[y,0],EL[y,1],s=sim,marker=Ma[y], color='black',edgecolor='black' )
+			fi.scatter(ELr[y,0],ELr[y,1],s=sim, marker=Ma0[y],color='white',edgecolor='black')
+			fi.scatter(EL[y,0],EL[y,1],s=sim,marker=Ma1[y], color='black',edgecolor='black' )
+			if couche.get()==1:
+				fi.text(EL[y,0],EL[y,1],Ma2[y])
+				fi.text(ELr[y,0],ELr[y,1],Ma2[y])
 		if coin.get()==1:
 			for z in coi:
-				fi.scatter(EL[z,0],EL[z,1],s=sim*1.5,marker=Ma[z], color='blue',edgecolor='black' )
+				fi.scatter(EL[z,0],EL[z,1],s=sim*1.5,marker=Ma0[z], color='blue',edgecolor='black' )
 			
         
         
@@ -427,7 +443,7 @@ default = style.lookup(theme, 'background')
 root.configure(background=default)
 
 def init():
-    global varname, lab, ato, rond,zoom,taille, dsc_cond,coin
+    global varname, lab, ato, rond,zoom,taille, dsc_cond,coin,couche
     varname=0
     lab=IntVar()
     ato=IntVar()
@@ -436,6 +452,7 @@ def init():
     taille=IntVar()
     dsc_cond=IntVar()
     coin=IntVar()
+    couche=IntVar()
     
 init()  
 
@@ -634,7 +651,11 @@ ep_entry = Entry (master=root)
 ep_entry.place(relx=0.2,rely=0.70,relheight=0.02 ,relwidth=0.03)
 ep_entry.configure(selectbackground="#c4c4c4")
 
-
+couche_check = Checkbutton (master=root)
+couche_check.place(relx=0.12,rely=0.65,relheight=0.02,relwidth=0.15)
+couche_check.configure(activebackground="#f9f9f9")
+couche_check.configure(text='''Layers''')
+couche_check.configure(variable=couche)
 
 menu = Menu(master=root)
 root.config(menu=menu)

@@ -56,3 +56,6 @@ with atomn is nth atom in the cell at coordinate xn, yn, zn and vkx,vky,vkz is t
 
 * Tick the "Coincidence sites" button to draw coincident site positions. The precision by which is defined coincidence  can be tuned. It is expressed in % of the largest lattice parameter.
 
+![img5](/img5.png?raw=true)
+
+* Tick the "Layers" button to show the layer number on the dichromatic pattern. From layers '0' to '5', markers are circles, squares, triangles, stars and hexagons, respectively. After they are all circles. 
