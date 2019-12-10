@@ -1,23 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Sep  8 18:03:26 2012
-
-@author: ania-fred
-"""
-
 
 from __future__ import division
 import numpy as np
-from matplotlib.figure import Figure
-from matplotlib import pyplot as plt
-from Tkinter import *
-from tkFileDialog import *
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
-import matplotlib.cm as cm
-import ttk
-from mpl_toolkits.mplot3d import Axes3D
+from PyQt4 import QtGui, QtCore
+import sys
 import os
+from PIL  import Image
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib import pyplot as plt
+import matplotlib as mpl
+import crystalProjUI
+
 
 def Rot(th,a,b,c):
    
@@ -66,7 +62,6 @@ def unique(a):
 def calcul():
   
     global vec,varname,atom0,Dstar,taille,zoom, EL, Dz, dsc_cond
-
    
    
     if varname!=0:
@@ -96,7 +91,7 @@ def calcul():
     H=np.array([[0]])
     Dz=np.array([0,0,0])
     
-    if dsc_cond.get()==0:
+    if ui.dsc_box.isChecked()==False:
         atom0=np.array(atom0,float)
         maxi=np.int(atom0[np.shape(atom0)[0]-1,0])
         for h in range(1,maxi+1):
@@ -106,25 +101,19 @@ def calcul():
             Dz=np.vstack((Dz,Ca[1]))        
             H=np.vstack((H,h*np.ones((np.shape(Ca[0])[0],1))))
             
-    if dsc_cond.get()==1:
+    if ui.dsc_box.isChecked():
         atom0=np.array([1,0,0,0])
         h=1
         Ca=calcul_atom(atom0)
         E=np.vstack((E,Ca[0]))
         Dz=np.vstack((Dz,Ca[1]))        
         H=np.vstack((H,h*np.ones((np.shape(Ca[0])[0],1))))
-        
-    
-    
-    
-    
+     
     
     EL=np.append(E,H,axis=1)
     EL=np.delete(EL,(0),axis=0)  
     Dz=np.delete(Dz,(0),axis=0)  
-    
- 
-
+  
 
 def trace():
     global vec,varname,atom0,Dstar,taille,zoom, EL, Dz
@@ -311,15 +300,17 @@ def calcul_rep(atom):
 def calcul_atom(atom):
     global Dstar,varname,C, D0,planN,plan,vec, atom_pos
 
-    a=eval(a_entry.get())
-    b=eval(b_entry.get())
-    c=eval(c_entry.get())
-    alp=eval(alp_entry.get())
-    bet=eval(bet_entry.get())
-    gam=eval(gam_entry.get())
-    alp=alp*np.pi/180
-    bet=bet*np.pi/180
-    gam=gam*np.pi/180
+    abc=ui.abc_entry.text().split(",")
+    a=np.float(abc[0])
+    b=np.float(abc[1])
+    c=np.float(abc[2])
+    alphabetagamma=ui.alphabetagamma_entry.text().split(",")
+    alpha=np.float(alphabetagamma[0])
+    beta=np.float(alphabetagamma[1])
+    gamma=np.float(alphabetagamma[2])
+    alp=alpha*np.pi/180
+    bet=beta*np.pi/180
+    gam=gamma*np.pi/180
   
    
     V=a*b*c*np.sqrt(1-(np.cos(alp)**2)-(np.cos(bet))**2-(np.cos(gam))**2+2*b*c*np.cos(alp)*np.cos(bet)*np.cos(gam))
@@ -327,8 +318,6 @@ def calcul_atom(atom):
     Dstar=np.transpose(np.linalg.inv(D))
     
     #atom positions
-    
-    
     
     
     na=eval(size_entry_a.get())
@@ -405,42 +394,12 @@ def calcul_atom(atom):
     return F, Dz, atom_pos    
 
 
-
-
-
-
-
 def getFileName():
     global varname
-    varname = askopenfilename(initialdir='/home/mompiou/Documents/programme_desorientation/prog-python/crystal-proj/')
+    varname = QtGui.QFileDialog.getOpenFileName(None,'OpenFile')
     return varname
 
 
-
-   
-root = Tk()
-root.title('Crystal-Proj')
-root.geometry('1102x839')
-
-
-##################"
-f = Figure(facecolor='white',figsize=[2,2],dpi=100)
-
-canvas = FigureCanvasTkAgg(f, master=root)
-
-canvas.get_tk_widget().place(relx=0.33,rely=0.0,relheight=1.0,relwidth=0.67)
-
-canvas.show()
-toolbar = NavigationToolbar2TkAgg( canvas, root )
-toolbar.zoom('on')
-toolbar.update()
-######################################
-
-
-style = ttk.Style()
-theme = style.theme_use()
-default = style.lookup(theme, 'background')
-root.configure(background=default)
 
 def init():
     global varname, lab, ato, rond,zoom,taille, dsc_cond,coin,couche
@@ -453,279 +412,64 @@ def init():
     dsc_cond=IntVar()
     coin=IntVar()
     couche=IntVar()
-    
-init()  
 
-plot_button = Button (master=root)
-plot_button.place(relx=0.03,rely=0.35,height=27,width=114)
-plot_button.configure(activebackground="#f9f9f9")
-plot_button.configure(background="#00ff00")
-plot_button.configure(text='''Draw ''',command=trace)
-
-dsc_check = Checkbutton (master=root)
-dsc_check.place(relx=0.15,rely=0.35,height=27,width=74)
-dsc_check.configure(activebackground="#f9f9f9")
-dsc_check.configure(text='''DSC''')
-dsc_check.configure(variable=dsc_cond)
-
-a_label = Label (master=root)
-a_label.place(relx=0.03,rely=0.05,height=19,width=11)
-a_label.configure(activebackground="#f9f9f9")
-a_label.configure(text='''a''')
-
-b_label = Label (master=root)
-b_label.place(relx=0.03,rely=0.09,height=19,width=12)
-b_label.configure(activebackground="#f9f9f9")
-b_label.configure(text='''b''')
-
-c_label = Label (master=root)
-c_label.place(relx=0.03,rely=0.12,height=19,width=11)
-c_label.configure(activebackground="#f9f9f9")
-c_label.configure(text='''c''')
-
-a_entry = Entry (master=root)
-a_entry.place(relx=0.05,rely=0.05,relheight=0.02,relwidth=0.04)
-a_entry.configure(selectbackground="#c4c4c4")
-
-b_entry = Entry (master=root)
-b_entry.place(relx=0.05,rely=0.09,relheight=0.02,relwidth=0.04)
-b_entry.configure(selectbackground="#c4c4c4")
-
-c_entry = Entry (master=root)
-c_entry.place(relx=0.05,rely=0.12,relheight=0.02,relwidth=0.04)
-c_entry.configure(selectbackground="#c4c4c4")
-
-alp_label = Label (master=root)
-alp_label.place(relx=0.02,rely=0.16,height=19,width=37)
-alp_label.configure(activebackground="#f9f9f9")
-alp_label.configure(text='''alpha''')
-
-beta_label = Label (master=root)
-beta_label.place(relx=0.02,rely=0.2,height=19,width=31)
-beta_label.configure(activebackground="#f9f9f9")
-beta_label.configure(text='''beta''')
-
-gamma_label = Label (master=root)
-gamma_label.place(relx=0.01,rely=0.23,height=19,width=52)
-gamma_label.configure(activebackground="#f9f9f9")
-gamma_label.configure(text='''gamma''')
-
-alp_entry = Entry (master=root)
-alp_entry.place(relx=0.05,rely=0.16,relheight=0.02,relwidth=0.04)
-alp_entry.configure(selectbackground="#c4c4c4")
-
-bet_entry = Entry (master=root)
-bet_entry.place(relx=0.05,rely=0.2,relheight=0.02,relwidth=0.04)
-bet_entry.configure(selectbackground="#c4c4c4")
-
-gam_entry = Entry (master=root)
-gam_entry.place(relx=0.05,rely=0.23,relheight=0.02,relwidth=0.04)
-gam_entry.configure(selectbackground="#c4c4c4")
-
-plan_label = Label (master=root)
-plan_label.place(relx=0.15,rely=0.05,height=19,width=61)
-plan_label.configure(activebackground="#f9f9f9")
-plan_label.configure(text='''Plane (hkl)''')
-
-h_entry = Entry (master=root)
-h_entry.place(relx=0.2,rely=0.05,relheight=0.02,relwidth=0.02)
-h_entry.configure(selectbackground="#c4c4c4")
-
-k_entry = Entry (master=root)
-k_entry.place(relx=0.24,rely=0.05,relheight=0.02,relwidth=0.02)
-k_entry.configure(selectbackground="#c4c4c4")
-
-l_entry = Entry (master=root)
-l_entry.place(relx=0.28,rely=0.05,relheight=0.02,relwidth=0.02)
-l_entry.configure(selectbackground="#c4c4c4")
-
-n_label = Label (master=root)
-n_label.place(relx=0.15,rely=0.11,height=19,width=55)
-n_label.configure(activebackground="#f9f9f9")
-n_label.configure(text='''Layers''')
-
-n1_entry = Entry (master=root)
-n1_entry.place(relx=0.21,rely=0.11,relheight=0.02,relwidth=0.02)
-n1_entry.configure(selectbackground="#c4c4c4")
-
-n2_entry = Entry (master=root)
-n2_entry.place(relx=0.24,rely=0.11,relheight=0.02,relwidth=0.02)
-n2_entry.configure(selectbackground="#c4c4c4")
-
-size_label = Label (master=root)
-size_label.place(relx=0.13,rely=0.16,height=19,width=94)
-size_label.configure(activebackground="#f9f9f9")
-size_label.configure(text='''Size''')
-
-size_entry_a = Entry (master=root)
-size_entry_a.place(relx=0.21,rely=0.16,relheight=0.02
-        ,relwidth=0.02)
-size_entry_a.configure(selectbackground="#c4c4c4")
-
-
-size_entry_b = Entry (master=root)
-size_entry_b.place(relx=0.25,rely=0.16,relheight=0.02
-        ,relwidth=0.02)
-size_entry_b.configure(selectbackground="#c4c4c4")
-
-size_entry_c = Entry (master=root)
-size_entry_c.place(relx=0.28,rely=0.16,relheight=0.02
-        ,relwidth=0.02)
-size_entry_c.configure(selectbackground="#c4c4c4")
-
-calcul_button = Button (master=root)
-calcul_button.place(relx=0.03,rely=0.31,height=27,width=114)
-calcul_button.configure(activebackground="#ff0000")
-calcul_button.configure(background="#ff0000")
-calcul_button.configure(text='''Calculate''',command=calcul)
-
-iconButton = Button (master=root)
-iconButton.place(relx=0.15,rely=0.23,height=27,width=172)
-iconButton.configure(activebackground="#f9f9f9")
-iconButton.configure(text='''Change the structure''',command=getFileName)
-
-label_check = Checkbutton (master=root)
-label_check.place(relx=0.22,rely=0.36,relheight=0.02,relwidth=0.07)
-label_check.configure(text='''Labels''')
-label_check.configure(variable=lab)
-
-atom_check = Checkbutton (master=root)
-atom_check.place(relx=0.22,rely=0.40,relheight=0.02,relwidth=0.07)
-atom_check.configure(activebackground="#f9f9f9")
-atom_check.configure(text='''Atoms''')
-atom_check.configure(variable=ato)
-
-
-rep_button = Button (master=root)
-rep_button.place(relx=0.03,rely=0.4,height=27,width=134)
-rep_button.configure(activebackground="#f9f9f9")
-rep_button.configure(background="#00ffff")
-rep_button.configure(text='''3D''',command=rep)
-
-
-#zoom_scale = Scale (master=root,from_=0, to=200, orient=HORIZONTAL,variable=zoom)
-#zoom_scale.place(relx=0.10,rely=0.57,relheight=0.06,relwidth=0.07)
+##################################################
 #
+# Add matplotlib toolbar to zoom and pan
 #
-#zoom_label = Label (master=root)
-#zoom_label.place(relx=0.04,rely=0.59,height=19,width=38)
-#zoom_label.configure(text='''Zoom''')
-
-rond_check = Checkbutton (master=root)
-rond_check.place(relx=0.02,rely=0.55,relheight=0.02,relwidth=0.15)
-rond_check.configure(activebackground="#f9f9f9")
-rond_check.configure(text='''Circles/Squares''')
-rond_check.configure(variable=rond)
-
-size_scale = Scale (master=root,from_=0, to=200, orient=HORIZONTAL,variable=taille)
-size_scale.place(relx=0.10,rely=0.49,relheight=0.06,relwidth=0.07)
-size_scale.configure(activebackground="#f9f9f9")
-size_scale.configure(troughcolor="#c4c4c4")
-
-size_marker_label = Label (master=root)
-size_marker_label.place(relx=0.01,rely=0.51,height=19,width=104)
-size_marker_label.configure(activebackground="#f9f9f9")
-size_marker_label.configure(text='''Marker size''')
-
-theta_label = Label (master=root)
-theta_label.place(relx=0.02,rely=0.6,height=19,width=94)
-theta_label.configure(activebackground="#f9f9f9")
-theta_label.configure(text='''Rotation angle''')
-
-theta_entry = Entry (master=root)
-theta_entry.place(relx=0.12,rely=0.60,relheight=0.02 ,relwidth=0.03)
-theta_entry.configure(selectbackground="#c4c4c4")
-
-coi_check = Checkbutton (master=root)
-coi_check.place(relx=0.02,rely=0.65,relheight=0.02,relwidth=0.15)
-coi_check.configure(activebackground="#f9f9f9")
-coi_check.configure(text='''Coincidence  sites''')
-coi_check.configure(variable=coin)
-
-ep_label = Label (master=root)
-ep_label.place(relx=0.02,rely=0.70,height=29,width=174)
-ep_label.configure(activebackground="#f9f9f9")
-ep_label.configure(text='''Precision (%  of max lattice parameter)''', anchor=W, wraplength=174)
-
-ep_entry = Entry (master=root)
-ep_entry.place(relx=0.2,rely=0.70,relheight=0.02 ,relwidth=0.03)
-ep_entry.configure(selectbackground="#c4c4c4")
-
-couche_check = Checkbutton (master=root)
-couche_check.place(relx=0.12,rely=0.65,relheight=0.02,relwidth=0.15)
-couche_check.configure(activebackground="#f9f9f9")
-couche_check.configure(text='''Layers''')
-couche_check.configure(variable=couche)
-
-menu = Menu(master=root)
-root.config(menu=menu)
-
-def createstructure(i):
-    return lambda:structure(i)    
-    
-    
-def structure(i0):
-    global x0
-    
-    a_entry.delete(0,END)
-    a_entry.insert(1,eval(x0[i0][1]))
-    b_entry.delete(0,END)    
-    b_entry.insert(1,eval(x0[i0][2]))
-    c_entry.delete(0,END)    
-    c_entry.insert(1,eval(x0[i0][3]))
-    alp_entry.delete(0,END)    
-    alp_entry.insert(1,eval(x0[i0][4]))
-    bet_entry.delete(0,END)    
-    bet_entry.insert(1,eval(x0[i0][5]))
-    gam_entry.delete(0,END)    
-    gam_entry.insert(1,eval(x0[i0][6]))
-    
-cristalmenu=Menu(menu,tearoff=0)
-menu.add_cascade(label="Structures", menu=cristalmenu)
-file_struct=open(os.path.join(os.path.dirname(__file__), 'structure.txt') ,"r")
-
-x0=[]
-i=0
-for line in file_struct:
-    x0.append(map(str, line.split()))
-    cristalmenu.add_command(label=x0[i][0], command=createstructure(i))
-    i=i+1
+################################################### 
 
 
+class NavigationToolbar(NavigationToolbar):
+    # only display the buttons we need
+    toolitems = [t for t in NavigationToolbar.toolitems if
+                 t[0] in ('Pan', 'Zoom')]
+    def set_message(self, msg):
+        pass
+###########################################################
+#
+# Structure
+#
 ##############################################################
-# fonction pour quitter
-#############################################################
-def _quit():
-    root.quit()     # stops mainloop
-    root.destroy()  # this is necessary on Windows to prevent
-                    # Fatal Python Error: PyEval_RestoreThread: NULL tstate
-#############################################################
 
-
+def structure(item):
+    global x0, var_hexa, d_label_var, e_entry
+    
+    ui.abc_entry.setText(str(item[1])+','+str(item[2])+','+str(item[3]))
+    ui.alphabetagamma_entry.setText(str(item[4])+','+str(item[5])+','+str(item[6]))
+    
+    
  
-a_entry.insert(1,1)
-b_entry.insert(1,1)
-c_entry.insert(1,1)
-h_entry.insert(1,1)
-k_entry.insert(0,0)
-l_entry.insert(0,0)
-ep_entry.insert(5,5)
-alp_entry.insert(90,90)
-bet_entry.insert(90,90)
-gam_entry.insert(90,90)
-n1_entry.insert(0,0)
-n2_entry.insert(2,2)
-size_entry_a.insert(2,2)
-size_entry_b.insert(2,2)
-size_entry_c.insert(2,2)
-size_scale.set(50)
-theta_entry.insert(20,20)
-rond_check.select()
 
 
+if __name__ == "__main__":
+    
+	app = QtGui.QApplication(sys.argv)
+	Index = QtGui.QMainWindow()	
+	ui = crystalProjUI.Ui_CrystalProj()
+	ui.setupUi(Index)
+    	figure=plt.figure()
+	canvas=FigureCanvas(figure)
+	ui.mplvl.addWidget(canvas)
+	toolbar = NavigationToolbar(canvas, canvas)
+	toolbar.setMinimumWidth(601)
+	
+	
+# Read structure file
+	
+	file_struct=open(os.path.join(os.path.dirname(__file__), 'structure.txt') ,"r")
+	x0=[]
+	for line in file_struct:
+	    x0.append(map(str, line.split()))
+	i=0
+	file_struct.close()            
+	for item in x0:
+	    entry = ui.menuStructure.addAction(item[0])
+	    Index.connect(entry,QtCore.SIGNAL('triggered()'), lambda item=item: structure(item))
+	    i=i+1
+	    
+	varname=0
+	ui.calculate_button.clicked.connect(calcul)
+	Index.show()
+	sys.exit(app.exec_())	
 
-
-
-
-
-root.mainloop()
