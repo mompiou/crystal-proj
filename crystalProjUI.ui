@@ -125,7 +125,7 @@
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QLineEdit" name="marker_entry"/>
+           <widget class="QLineEdit" name="markers_entry"/>
           </item>
           <item row="3" column="0" colspan="2">
            <widget class="QCheckBox" name="square_box">
@@ -137,14 +137,14 @@
           <item row="4" column="0" colspan="2">
            <widget class="QCheckBox" name="labels_box">
             <property name="text">
-             <string>Labels</string>
+             <string>Atom positions</string>
             </property>
            </widget>
           </item>
           <item row="5" column="0" colspan="2">
            <widget class="QCheckBox" name="atoms_box">
             <property name="text">
-             <string>Atoms</string>
+             <string>Atom type</string>
             </property>
            </widget>
           </item>
@@ -300,6 +300,25 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>abc_entry</tabstop>
+  <tabstop>alphabetagamma_entry</tabstop>
+  <tabstop>plane_entry</tabstop>
+  <tabstop>size_entry</tabstop>
+  <tabstop>layers_entry</tabstop>
+  <tabstop>changeStruct_button</tabstop>
+  <tabstop>calculate_button</tabstop>
+  <tabstop>draw_button</tabstop>
+  <tabstop>markers_entry</tabstop>
+  <tabstop>square_box</tabstop>
+  <tabstop>labels_box</tabstop>
+  <tabstop>atoms_box</tabstop>
+  <tabstop>dsc_box</tabstop>
+  <tabstop>angle_entry</tabstop>
+  <tabstop>coincidence_box</tabstop>
+  <tabstop>layers_box</tabstop>
+  <tabstop>precision_entry</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
  <slots>

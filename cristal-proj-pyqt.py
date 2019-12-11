@@ -118,24 +118,24 @@ def calcul():
 def trace():
     global vec,varname,atom0,Dstar,taille,zoom, EL, Dz
        
-    fi = f.add_subplot(111) 
+    fi = figure.add_subplot(111) 
     fi.figure.clear()
-    fi = f.add_subplot(111) 
-    sim=taille.get()
-    if dsc_cond.get()==0:
-        if rond.get()==1:    
+    fi = figure.add_subplot(111) 
+    sim=int(ui.markers_entry.text())
+    if ui.dsc_box.isChecked()==False:
+        if ui.square_box.isChecked()==False:    
             fi.scatter(EL[:,0],EL[:,1],s=sim,c=EL[:,3],marker='o')
         else:
             fi.scatter(EL[:,0],EL[:,1],s=sim,c=EL[:,3],marker='s')
         
         
        
-        if ato.get()==1:    
+        if ui.atoms_box.isChecked():    
             for k in range(0,np.shape(EL)[0]):
                 fi.annotate(str(int(EL[k,4])),(EL[k,0],EL[k,1]))    
         
         
-        if lab.get()==1:
+        if ui.labels_box.isChecked():
             for q in range(0,np.shape(EL)[0]):
                 at=Dz[q,:]
                 at=np.dot(at,Dstar)
@@ -143,13 +143,10 @@ def trace():
                 vector=str(np.around(at[0],decimals=3))+','+str(np.around(at[1],decimals=3))+','+str(np.around(at[2],decimals=3))
                 fi.annotate(vector,(EL[q,0],EL[q,1]))
 
-    if dsc_cond.get()==1:
-		theta=eval(theta_entry.get())
+    if ui.dsc_box.isChecked():
+		theta=float(ui.angle_entry.text())
 		theta=theta*np.pi/180
 		ELr=np.dot(EL[:,0:3],Rot(theta,0,0,1))
-		
-		
-		
 		M=unique(EL[:,3])
 		
 		Ma0=[]
@@ -157,9 +154,14 @@ def trace():
 		Ma2=[]
 		Ma=[]
 		m=('o','s','^','*','h')
-		if coin.get()==1:
+		abc=ui.abc_entry.text().split(",")
+    		a=np.float(abc[0])
+    		b=np.float(abc[1])
+    		c=np.float(abc[2])
+    		ee=np.float(ui.precision_entry.text())
+		if ui.coincidence_box.isChecked():
 			coi=np.array([0])
-			ep=0.01*eval(ep_entry.get())*np.max([eval(a_entry.get()),eval(b_entry.get()),eval(c_entry.get())])
+			ep=0.01*ee*np.max([a,b,c])
 			for i in range(0,np.shape(EL[:,3])[0]):
 				for j in range(0,np.shape(ELr[:,0])[0]):
 					if np.linalg.norm(EL[i,0:3]-ELr[j,:])<ep:
@@ -176,7 +178,7 @@ def trace():
 					else:
 						Ma0.append(m[t])
 						Ma1.append(m[t])
-					if couche.get()==1:
+					if ui.layers_box.isChecked():
 						Ma2.append(str(t))
 		else:
 			Ma.append('D')
@@ -185,16 +187,16 @@ def trace():
 		for y in range(0,np.shape(EL[:,3])[0]):
 			fi.scatter(ELr[y,0],ELr[y,1],s=sim, marker=Ma0[y],color='white',edgecolor='black')
 			fi.scatter(EL[y,0],EL[y,1],s=sim,marker=Ma1[y], color='black',edgecolor='black' )
-			if couche.get()==1:
+			if ui.layers_box.isChecked():
 				fi.text(EL[y,0],EL[y,1],Ma2[y])
 				fi.text(ELr[y,0],ELr[y,1],Ma2[y])
-		if coin.get()==1:
+		if ui.coincidence_box.isChecked():
 			for z in coi:
 				fi.scatter(EL[z,0],EL[z,1],s=sim*1.5,marker=Ma0[z], color='blue',edgecolor='black' )
 			
         
         
-		if lab.get()==1:
+		if ui.labels_box.isChecked():
 			for q in range(0,np.shape(EL)[0]):
 				at=Dz[q,:]
 				at=np.dot(at,Dstar)
@@ -211,10 +213,10 @@ def trace():
 
 def rep():
     global varname, vec,E,C,Dz,atom0
-    fi = f.add_subplot(111) 
+    fi = figure.add_subplot(111) 
     fi.figure.clear()
-    fi = f.add_subplot(111,projection='3d') 
-    sim=taille.get()
+    fi = figure.add_subplot(111,projection='3d') 
+    sim=int(ui.markers_entry.text())
     if varname!=0:
         f_space=open(varname,"r")
     else:
@@ -255,26 +257,27 @@ def rep():
     
 def calcul_rep(atom):  
     global Dstar,varname,C, D0,Dz,planN,plan,vec,c
-
-    a=eval(a_entry.get())
-    b=eval(b_entry.get())
-    c=eval(c_entry.get())
-    alp=eval(alp_entry.get())
-    bet=eval(bet_entry.get())
-    gam=eval(gam_entry.get())
-       
-    alp=alp*np.pi/180;
-    bet=bet*np.pi/180;
-    gam=gam*np.pi/180;
+    abc=ui.abc_entry.text().split(",")
+    a=np.float(abc[0])
+    b=np.float(abc[1])
+    c=np.float(abc[2])
+    alphabetagamma=ui.alphabetagamma_entry.text().split(",")
+    alpha=np.float(alphabetagamma[0])
+    beta=np.float(alphabetagamma[1])
+    gamma=np.float(alphabetagamma[2])
+    alp=alpha*np.pi/180
+    bet=beta*np.pi/180
+    gam=gamma*np.pi/180
    
     V=a*b*c*np.sqrt(1-(np.cos(alp)**2)-(np.cos(bet))**2-(np.cos(gam))**2+2*b*c*np.cos(alp)*np.cos(bet)*np.cos(gam))
     D=np.array([[a,b*np.cos(gam),c*np.cos(bet)],[0,b*np.sin(gam),  c*(np.cos(alp)-np.cos(bet)*np.cos(gam))/np.sin(gam)],[0,0,V/(a*b*np.sin(gam))]])
     Dstar=np.transpose(np.linalg.inv(D))
     
         
-    na_rep=eval(size_entry_a.get())
-    nb_rep=eval(size_entry_b.get())
-    nc_rep=eval(size_entry_c.get())
+    n=ui.size_entry.text().split(",")
+    na=np.int(n[0])
+    nb=np.int(n[1])
+    nc=np.int(n[2])
     
     A=np.zeros((np.shape(atom)[0],np.shape(atom)[1]-1))
     w=0
@@ -318,12 +321,13 @@ def calcul_atom(atom):
     Dstar=np.transpose(np.linalg.inv(D))
     
     #atom positions
+    n=ui.size_entry.text().split(",")
+    na=np.int(n[0])
+    nb=np.int(n[1])
+    nc=np.int(n[2])
     
     
-    na=eval(size_entry_a.get())
-    nb=eval(size_entry_b.get())
-    nc=eval(size_entry_c.get())
-    if dsc_cond.get()==0:
+    if ui.dsc_box.isChecked()==False:
         A=np.zeros((np.shape(atom)[0],np.shape(atom)[1]-1))
         w=0
         for v in range(0,np.shape(atom)[0]):
@@ -336,29 +340,19 @@ def calcul_atom(atom):
                     for k in range(-nc,nc+1):
                             atom_pos=np.vstack((atom_pos,A[f,:]+i*a*vec[0,:]+j*b*vec[1,:]+k*c*vec[2,:]))        
         
-    if dsc_cond.get()==1:
+    if ui.dsc_box.isChecked():
         atom_pos=np.array([0,0,0])
         for i in range(-na,na+1):
             for j in range(-nb,nb+1):
                 for k in range(-nc,nc+1):
                         atom_pos=np.vstack((atom_pos,i*a*vec[0,:]+j*b*vec[1,:]+k*c*vec[2,:]))
+    pl=ui.plane_entry.text().split(",")
+    h=np.float(pl[0])
+    k=np.float(pl[1])
+    l=np.float(pl[2])                    
     
-    
-    
-    
-    
-    
-#    print(atom_pos)
-    
-                        
-    h=eval(h_entry.get())
-    k=eval(k_entry.get())
-    l=eval(l_entry.get())
-    
-
     plan=np.array([h,k,l])
     planN=np.dot(Dstar,plan)
-    #print(planN)
     Dz=np.array([0,0,0])
     D0=np.array([0])
     C=np.array([0,0,0])
@@ -370,9 +364,10 @@ def calcul_atom(atom):
         tt=tt+1
     
     Le=unique(np.abs(L))
-    #print(Le)
-    cc=eval(n1_entry.get())
-    dd=eval(n2_entry.get())
+    lay=ui.layers_entry.text().split(",")
+    cc=np.int(lay[0])
+    dd=np.int(lay[1])
+    
     
     for y in range(cc,dd):
         for i in range(0,np.shape(atom_pos)[0]):
@@ -470,6 +465,15 @@ if __name__ == "__main__":
 	    
 	varname=0
 	ui.calculate_button.clicked.connect(calcul)
+	ui.draw_button.clicked.connect(trace)
+	ui.changeStruct_button.clicked.connect(getFileName)
+	ui.abc_entry.setText('1,1,1')
+	ui.alphabetagamma_entry.setText('90,90,90')
+	ui.plane_entry.setText('1,1,1')
+	ui.size_entry.setText('2,2,2')
+	ui.layers_entry.setText('0,2')
+	ui.markers_entry.setText('30')
+	ui.precision_entry.setText('5')
 	Index.show()
 	sys.exit(app.exec_())	
 
